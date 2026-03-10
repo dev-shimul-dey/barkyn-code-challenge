@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
-import { User } from "../users/user.entity";
-import { Course } from "../courses/course.entity";
-import { GlobalEntity } from "src/common/entities/global.entity";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
+import { User } from '../users/user.entity';
+import { Course } from '../courses/course.entity';
+import { GlobalEntity } from 'src/common/entities/global.entity';
 
 @Entity()
 export class Enrollment extends GlobalEntity {

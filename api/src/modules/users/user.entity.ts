@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Generated } from "typeorm";
+import { Entity, Column, OneToMany, Generated } from "typeorm";
 import { Enrollment } from "../enrollment/enrollment.entity";
 import { GlobalEntity } from "src/common/entities/global.entity";
 
@@ -13,4 +13,11 @@ export class User extends GlobalEntity {
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
   enrollments!: Enrollment[];
+
+  toJSON() {
+    return {
+      uuid: this.uuid,
+      name: this.name,
+    };
+  }
 }

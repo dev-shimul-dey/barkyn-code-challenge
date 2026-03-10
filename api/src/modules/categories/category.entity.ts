@@ -9,4 +9,11 @@ export class Category extends GlobalEntity {
 
   @OneToMany(() => Course, (course) => course.category)
   courses!: Course[];
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+    };
+  }
 }
