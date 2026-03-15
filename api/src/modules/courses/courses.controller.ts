@@ -21,7 +21,7 @@ export class CoursesController {
     @Query() query: PaginationQueryDto,
     @Headers('x-user-id') userUuid?: string,
   ) {
-    return this.coursesService.findAll(query, userUuid);
+    return this.coursesService.findAll(query, userUuid, query.categoryId);
   }
 
   @Get(':uuid')

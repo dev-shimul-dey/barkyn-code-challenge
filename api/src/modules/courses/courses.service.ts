@@ -14,11 +14,22 @@ export class CoursesService {
     private enrollmentRepository: Repository<Enrollment>,
   ) {}
 
-  async findAll(query: PaginationQueryDto, userUuid?: string) {
+  async findAll(
+    query: PaginationQueryDto,
+    userUuid?: string,
+    categoryId?: number,
+  ) {
     const { page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
+    // Build where clause with optional category filter
+    const where: any = {};
+    if (categoryId) {
+      where.category = { id: categoryId };
+    }
+
     const [courses, total] = await this.courseRepository.findAndCount({
+      where,
       relations: ['category', 'prerequisite'],
       skip,
       take: limit,
