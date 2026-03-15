@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   postgres:
@@ -14,6 +14,11 @@ services:
       - "${DB_PORT}:${DB_PORT}"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: ${REDIS_IMAGE}
@@ -35,12 +40,13 @@ services:
     environment:
       DB_HOST: postgres
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
     volumes:
       - ./api:/usr/src/app
       - api_node_modules:/usr/src/app/node_modules
-    command: npm run start:dev
     ports:
       - "${API_PORT}:${API_CONTAINER_PORT}"
 
@@ -49,17 +55,18 @@ services:
       context: ./web
       dockerfile: Dockerfile
       args:
-      # reuse same base node image from .env
+        # reuse same base node image from .env
         NODE_IMAGE: ${NODE_IMAGE}
     container_name: web
     restart: unless-stopped
     env_file:
       - .env
     depends_on:
-      - api
+      api:
+        condition: service_started
     environment:
-      # Frontend talks to backend via Docker service name "api"
-      VITE_API_URL: "http://api:${API_CONTAINER_PORT}"
+      # Frontend browser accesses backend via localhost (host machine)
+      VITE_API_URL: "http://localhost:${API_PORT}"
     volumes:
       - ./web:/usr/src/app
       - web_node_modules:/usr/src/app/node_modules

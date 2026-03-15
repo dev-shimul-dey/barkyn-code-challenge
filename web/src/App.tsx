@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+/**
+ * Main App Component
+ */
 
-function App() {
-  const [count, setCount] = useState(0)
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import { ToastProvider } from './contexts/ToastContext';
+import { useRestoreSession, useAuth } from './hooks';
+import Layout from './components/layout/Layout';
+import LoginModal from './components/modals/LoginModal';
+import CoursesPage from './pages/CoursesPage';
+import CourseDetailsPage from './pages/CourseDetailsPage';
+import ProfilePage from './pages/ProfilePage';
+import { LoadingSpinner } from './components/common';
+
+/**
+ * Main App Router
+ */
+function AppContent() {
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const { isLoading: authLoading } = useAuth();
+
+  // Restore session on mount
+  useRestoreSession();
+
+  if (authLoading) {
+    return <LoadingSpinner fullScreen text="Loading..." />;
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Layout onLoginClick={() => setLoginModalOpen(true)}>
+        <Routes>
+          <Route path="/" element={<CoursesPage />} />
+          <Route path="/courses/:courseUuid" element={<CourseDetailsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Layout>
+
+      <LoginModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </>
-  )
+  );
 }
 
-export default App
+/**
+ * App Root with Redux Provider and Toast Provider
+ */
+function App() {
+  return (
+    <Provider store={store}>
+      <ToastProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </ToastProvider>
+    </Provider>
+  );
+}
+
+export default App;

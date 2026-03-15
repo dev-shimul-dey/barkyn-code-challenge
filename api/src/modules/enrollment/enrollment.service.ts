@@ -20,7 +20,7 @@ export class EnrollmentService {
 
   async enroll(user: User, courseUuid: string) {
     // Transaction to ensure data integrity and prevent race conditions
-    return this.dataSource.transaction(async (manager) => {
+    const result = await this.dataSource.transaction(async (manager) => {
       // Pessimistic lock to prevent overbooking during concurrent requests
       const course = await manager.findOne(Course, {
         where: { uuid: courseUuid },
@@ -61,6 +61,14 @@ export class EnrollmentService {
 
       return manager.save(enrollment);
     });
+
+    // Load relations for serialization
+    const enrollmentWithRelations = await this.enrollmentRepository.findOne({
+      where: { id: result.id },
+      relations: ['course', 'user'],
+    });
+
+    return this.serializeEnrollment(enrollmentWithRelations!);
   }
 
   async complete(user: User, courseUuid: string) {
@@ -69,6 +77,7 @@ export class EnrollmentService {
         user: { id: user.id },
         course: { uuid: courseUuid },
       },
+      relations: ['course', 'user'],
     });
 
     if (!enrollment) {
@@ -76,14 +85,33 @@ export class EnrollmentService {
     }
 
     enrollment.completed = true;
-    return this.enrollmentRepository.save(enrollment);
+    const saved = await this.enrollmentRepository.save(enrollment);
+    return this.serializeEnrollment(saved);
   }
 
   async findMyEnrollments(user: User) {
-    return this.enrollmentRepository.find({
+    const enrollments = await this.enrollmentRepository.find({
       where: { user: { id: user.id } },
-      relations: ['course'],
+      relations: ['course', 'user'],
       order: { createdAt: 'DESC' },
     });
+    return enrollments.map((e) => this.serializeEnrollment(e));
+  }
+
+  private serializeEnrollment(enrollment: Enrollment) {
+    return {
+      id: enrollment.id,
+      userUuid: enrollment.user?.uuid,
+      courseUuid: enrollment.course?.uuid,
+      completed: enrollment.completed,
+      course: enrollment.course,
+      createdAt: enrollment.createdAt,
+      updatedAt: enrollment.updatedAt,
+      enrolledAt: enrollment.createdAt,
+      completedAt:
+        enrollment.updatedAt && enrollment.completed
+          ? enrollment.updatedAt
+          : null,
+    };
   }
 }

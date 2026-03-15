@@ -7,7 +7,7 @@ import {
   Headers,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
-import { CourseAccessGuard } from './courses.guard'; 
+import { CourseAccessGuard } from './courses.guard';
 import { PaginationQueryDto } from 'src/common/dto/pagination.dto';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
@@ -25,7 +25,6 @@ export class CoursesController {
   }
 
   @Get(':uuid')
-  @UseGuards(CourseAccessGuard)
   findOne(
     @Param('uuid') uuid: string,
     @Headers('x-user-id') userUuid?: string,

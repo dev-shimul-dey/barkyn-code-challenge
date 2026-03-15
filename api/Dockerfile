@@ -11,11 +11,18 @@ RUN npm install
 # Copy the rest of the source
 COPY . .
 
+# Copy entrypoint script and make it executable
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+# Install postgresql client for health checks
+RUN apk add --no-cache postgresql-client
+
 # Build NestJS app
 RUN npm run build
 
 # Expose the container port (matches API_CONTAINER_PORT from .env)
 EXPOSE 3000
 
-# Start in production mode
-CMD ["npm", "run", "start:prod"]
+# Use entrypoint script to wait for DB, run migrations, and start the app
+ENTRYPOINT ["./entrypoint.sh"]
