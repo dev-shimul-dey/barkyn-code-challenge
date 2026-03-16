@@ -11,9 +11,9 @@ RUN npm install
 # Copy the rest of the source
 COPY . .
 
-# Copy entrypoint script and make it executable
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+# Keep the runtime entrypoint outside the bind-mounted app directory.
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && chmod +x /usr/local/bin/entrypoint.sh
 
 # Install postgresql client for health checks
 RUN apk add --no-cache postgresql-client
