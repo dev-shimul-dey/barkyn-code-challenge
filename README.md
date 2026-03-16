@@ -31,3 +31,13 @@ docker compose up --build
 
 | **Frontend** | http://localhost:5173
 | **API** | http://localhost:3000/api
+
+
+## 🧪 Testing
+
+Run tests for the API:
+
+```bash
+# Run specific E2E test (enrollment)
+docker exec api npm run test:e2e -- enrollment
+```
