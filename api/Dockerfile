@@ -25,4 +25,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Use entrypoint script to wait for DB, run migrations, and start the app
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["/usr/local/bin/entrypoint.sh"]
