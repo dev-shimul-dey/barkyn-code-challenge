@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Course } from './course.entity';
 import { Enrollment } from '../enrollment/enrollment.entity';
 import { PaginationQueryDto } from 'src/common/dto/pagination.dto';
+import { CacheService } from 'src/common/services/cache.service';
 
 @Injectable()
 export class CoursesService {
@@ -12,6 +13,7 @@ export class CoursesService {
     private courseRepository: Repository<Course>,
     @InjectRepository(Enrollment)
     private enrollmentRepository: Repository<Enrollment>,
+    private cacheService: CacheService,
   ) {}
 
   async findAll(
@@ -21,6 +23,15 @@ export class CoursesService {
   ) {
     const { page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
+
+    // Generate cache key based on query parameters
+    const cacheKey = `courses:findall:${page}:${limit}:${categoryId || 'all'}:${userUuid || 'nouser'}`;
+
+    // Try to get from cache
+    const cachedResult = await this.cacheService.get(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
 
     // Build where clause with optional category filter
     const where: any = {};
@@ -39,7 +50,7 @@ export class CoursesService {
     // Fetch user enrollment data and progression info once for all courses
     const enrollmentData = await this.getUserEnrollmentData(userUuid);
 
-    return {
+    const result = {
       data: courses.map((course) => {
         this.enrichCourseWithUserContext(course, enrollmentData);
         return course;
@@ -51,6 +62,11 @@ export class CoursesService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    // Store in cache with 10-minute TTL (in milliseconds)
+    await this.cacheService.set(cacheKey, result, 600000);
+
+    return result;
   }
 
   async findOne(uuid: string, userUuid?: string): Promise<Course> {

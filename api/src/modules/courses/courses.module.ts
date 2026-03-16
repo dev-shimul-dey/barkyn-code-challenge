@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommonModule } from 'src/common/common.module';
 import { CoursesService } from './courses.service';
 import { CoursesController } from './courses.controller';
 import { CourseAccessGuard } from './courses.guard';
@@ -10,6 +11,7 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Course, Enrollment]),
+    CommonModule,
     UsersModule,
   ],
   controllers: [CoursesController],
