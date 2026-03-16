@@ -60,9 +60,9 @@ const Modal: React.FC<ModalProps> = ({
           {closeButton && (
             <button
               onClick={onClose}
-              className="p-1 hover:bg-neutral-100 rounded-md transition-colors"
+              className="p-1 bg-white rounded-md transition-colors hover:bg-neutral-100"
             >
-              <span className="text-2xl">✕</span>
+              <span className="text-2xl text-black">✕</span>
             </button>
           )}
         </div>

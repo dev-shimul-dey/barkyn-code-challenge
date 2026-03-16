@@ -51,9 +51,9 @@ const Toast: React.FC<ToastProps> = ({ id, message, type, duration = 3000, onClo
       <span className="font-medium">{message}</span>
       <button
         onClick={() => onClose(id)}
-        className="ml-2 hover:opacity-80 transition-opacity"
+        className="ml-2 p-1 bg-white rounded transition-colors hover:bg-neutral-100"
       >
-        ✕
+        <span className="text-black">✕</span>
       </button>
     </div>
   );
