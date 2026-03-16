@@ -36,12 +36,14 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
           >
             Courses
           </Link>
-          <Link
-            to="/profile"
-            className="text-neutral-600 hover:text-primary transition-colors font-medium"
-          >
-            Profile
-          </Link>
+          {isAuthenticated && user ? (
+            <Link
+              to="/profile"
+              className="text-neutral-600 hover:text-primary transition-colors font-medium"
+            >
+              Profile
+            </Link>
+          ) : null}
         </nav>
 
         {/* Auth Section */}
