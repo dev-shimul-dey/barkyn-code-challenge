@@ -17,7 +17,6 @@
 ### Setup Environment Files
 
 ```bash
-# Copy environment files (if not already present)
 cp .env.example .env
 ```
 
@@ -38,6 +37,5 @@ docker compose up --build
 Run tests for the API:
 
 ```bash
-# Run specific E2E test (enrollment)
 docker exec api npm run test:e2e -- enrollment
 ```
